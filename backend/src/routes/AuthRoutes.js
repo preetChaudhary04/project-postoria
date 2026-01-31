@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authInputValidator = require("../middlewares/authInputValidator");
 const authControllers = require("../controllers/AuthControllers");
-const authMiddleware = require("../middlewares/authMiddleware");
+const protect = require("../middlewares/authMiddleware");
 
 // register user
 router.get(
@@ -22,6 +22,6 @@ router.post(
 router.get("/user/logout", authControllers.logoutUser);
 
 // me route -> for frontend use
-router.get("/user/me", authMiddleware, authControllers.meController);
+router.get("/user/me", protect, authControllers.meController);
 
 module.exports = router;

@@ -8,7 +8,7 @@ const registerUser = async (req, res) => {
 
     const doesUserAlreadyExist = await User.findOne({ email });
     if (doesUserAlreadyExist) {
-      res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,6 +29,7 @@ const registerUser = async (req, res) => {
     });
 
     res.status(200).json({
+      success: true,
       message: "User registered successfully",
       user: {
         username: user.username,
@@ -37,7 +38,7 @@ const registerUser = async (req, res) => {
     });
   } catch (err) {
     console.log("USER REGISTER ERROR: ", err);
-    res.status(400).json({ message: "User registration failed" });
+    return res.status(500).json({ message: "User registration failed" });
   }
 };
 
@@ -47,12 +48,12 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ message: "User not found" });
     }
 
-    const isMatch = bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
@@ -68,6 +69,7 @@ const loginUser = async (req, res) => {
     });
 
     res.status(200).json({
+      success: true,
       message: "Login successful",
       user: {
         id: user._id,
@@ -77,7 +79,7 @@ const loginUser = async (req, res) => {
     });
   } catch (err) {
     console.log("USER LOGIN ERROR: ", err);
-    res.status(400).json({ message: "Login failed" });
+    return res.status(500).json({ message: "Login failed" });
   }
 };
 
@@ -88,18 +90,19 @@ const logoutUser = (req, res) => {
       sameSite: "lax",
       secure: false,
       path: "/",
-      expiresIn: new Date(0),
+      expires: new Date(0),
     });
 
-    res.status(200).json({ message: "Logout successful" });
+    res.status(200).json({ success: true, message: "Logout successful" });
   } catch (err) {
     console.log("USER LOGOUT ERROR: ", err);
-    res.status(400).json({ message: "Logout failed" });
+    return res.status(500).json({ message: "Logout failed" });
   }
 };
 
 const meController = (req, res) => {
-  res.status(200).json({
+  return res.status(200).json({
+    success: true,
     message: "User logged in",
     user: {
       id: req.user._id,

@@ -1,27 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const authInputValidator = require("../middlewares/authInputValidator");
-const authControllers = require("../controllers/AuthControllers");
-const protect = require("../middlewares/authMiddleware");
+const protected = require("../middlewares/authMiddleware");
+const {
+  userRegisterInputValidator,
+  userLoginInputValidator,
+} = require("../middlewares/authInputValidator");
 
-// register user
-router.get(
-  "/user/register",
-  authInputValidator.userRegisterInputValidator,
-  authControllers.registerUser,
-);
+// controller
+const {
+  registerUser,
+  loginUser,
+  logoutUser,
+  meController,
+} = require("../controllers/AuthControllers");
 
-// login user
-router.post(
-  "/user/login",
-  authInputValidator.userLoginInputValidator,
-  authControllers.loginUser,
-);
+// routes
 
-// logout
-router.get("/user/logout", authControllers.logoutUser);
+router.get("/user/register", userRegisterInputValidator, registerUser); // register user
 
-// me route -> for frontend use
-router.get("/user/me", protect, authControllers.meController);
+router.post("/user/login", userLoginInputValidator, loginUser); // login user
+
+router.get("/user/logout", logoutUser); // logout
+
+router.get("/user/me", protected, meController); // me route -> for frontend use (protected)
 
 module.exports = router;
